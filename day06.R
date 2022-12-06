@@ -4,8 +4,7 @@ day06 <- function(filename) {
     n <- length(dat)
 
     find_sop <- function(x) {
-        index <- x:n
-        for (i in index) {
+        for (i in x:n) {
             possible <- dat[(i - x + 1L):i]
             if (length(unique(possible)) == x)
                 return(i)
