@@ -1,4 +1,6 @@
+# assumption: Every 4 characters contains a crate!
 day05 <- function(filename) {
+
     # load data
     dat <- readLines(filename)
 
@@ -11,13 +13,11 @@ day05 <- function(filename) {
     n <- length(ids)
 
     # parse the initial setup
-    init <- dat[(id_row - 1L):1]
-    init <- paste(init, "\n", collapse="\n")
-    f <- tempfile()
-    cat(init, file=f, sep = "")
-    init <- read.fwf(f, rep.int(4L, n), header = FALSE)
-    init <- init[c(TRUE, FALSE),]
+    init <- read.fwf(filename, rep.int(4L, n), header = FALSE, n = id_row - 1L)
     init[] <- lapply(init, trimws)
+
+    # flip the initial setup
+    init[] <- lapply(init, rev)
 
     # allocate the maximum needed space and a current index
     # here each column is a stack
@@ -70,4 +70,3 @@ day05 <- function(filename) {
     # return
     list(part_1 = loop(TRUE), part_2 = loop(FALSE))
 }
-
