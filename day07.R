@@ -1,6 +1,4 @@
 day07 <- function(filename) {
-
-    # load input
     dat <- readLines(filename)
 
     # remove lines that do nothing (ls and dir)
@@ -12,7 +10,7 @@ day07 <- function(filename) {
     files <- sizes <- character(n)
     index <- 1L
 
-    # loop (first row is cd to root so we ignore)
+    # loop to get filepaths and sizes (first row is cd to root so we ignore)
     dir <- "/"
     for (i in 2:n) {
 
@@ -69,5 +67,4 @@ day07 <- function(filename) {
 
     # return
     list(part_1 = part_1, part_2 = part_2)
-
 }
