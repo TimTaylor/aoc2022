@@ -5,16 +5,11 @@ day07 <- function(filename) {
     dat <- dat[dat != "$ ls"]
     dat <- dat[grep("^dir ", dat, perl = TRUE, invert = TRUE)]
 
-    # preallocate space for result and set index to 1
+    # loop to get directories (first row is cd /)
     n <- length(dat)
-    files <- sizes <- character(n)
-    index <- 1L
-
-    # loop to get filepaths and sizes (first row is cd to root so we ignore)
-    dir <- "/"
+    dirs <- character(n)
+    dirs[1L] <- dir <- "/"
     for (i in 2:n) {
-
-        # pull out the command
         row <- dat[i]
 
         # going back a directory
@@ -27,36 +22,38 @@ day07 <- function(filename) {
         } else if (grepl("^\\$ cd", row, perl = TRUE)) {
             new_dir <- sub("^\\$ cd ", "", row, perl = TRUE)
             dir <- sprintf("%s%s/", dir, new_dir)
-        # file listing
-        } else {
-            tmp <- strsplit(row, " ", fixed = TRUE)[[1L]]
-            sizes[index] <- tmp[[1L]]
-            files[index] <- sprintf("%s%s", dir, tmp[[2L]])
-            index <- index + 1L
+        # otherwise file listing and nothing to do
         }
+
+        dirs[i] <- dir
     }
 
-    # remove space not needed and convert sizes to integer
-    files <- files[seq_len(index - 1L)]
-    sizes <- as.integer(sizes[seq_len(index - 1L)])
+    # Now remove the "cd" entries
+    cd_id <- grepl("^\\$ cd", dat, perl = TRUE)
+    dirs <- dirs[!cd_id]
+    dat <- dat[!cd_id]
 
-    # calculate and expand the directories
-    dirs <- dirname(files)
+    # calculate sizes
+    sizes <- as.integer(sub("(^\\d*) .*", "\\1", dat, perl = TRUE))
+
+    # expand the directories
     fs <- strsplit(dirs, "/", fixed = TRUE)
-    fs <- .mapply(
-        function(split_folder, s) {
+    fs <- lapply(
+        fs,
+        function(split_folder) {
             res <- sapply(seq_along(split_folder), function(x) paste(split_folder[1:x], collapse="/"))
             res[1L] <- "/"
-            list2DF(list(dir = res, size = rep.int(s, length(res))))
-        },
-        dots = list(fs, sizes),
-        MoreArgs = NULL
+            res
+        }
     )
-    fs <- do.call(rbind, fs)
 
-    # remove duplicates and aggregate
-    fs<- fs[!duplicated(fs),]
-    res <- tapply(fs$size, fs["dir"], sum)
+    # replicate sizes
+    reps <- lengths(fs)
+    sizes <- rep.int(sizes, reps)
+    dirs <- unlist(fs)
+
+    # aggregate
+    res <- tapply(sizes, dirs, sum)
 
     # part_1
     part_1 <- sum(res[res<100000])
