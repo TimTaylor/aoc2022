@@ -48,11 +48,10 @@ day07 <- function(filename) {
     )
 
     # replicate sizes
-    reps <- lengths(fs)
-    sizes <- rep.int(sizes, reps)
-    dirs <- unlist(fs)
+    sizes <- rep.int(sizes, lengths(fs))
 
-    # aggregate
+    # aggregate across directories
+    dirs <- unlist(fs)
     res <- tapply(sizes, dirs, sum)
 
     # part_1
