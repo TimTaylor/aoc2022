@@ -10,6 +10,7 @@ day11 <- function(filename) {
     operation <- character(n)
     divisor <- integer(n)
     true <- false <- logical(n)
+    items <- vector("list", n)
     for (i in seq_len(n)) {
         x <- dat[[i]]
         starting_items <- sub("  Starting items: ", "", x[2L], fixed = TRUE)
